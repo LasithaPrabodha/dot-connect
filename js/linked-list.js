@@ -58,7 +58,7 @@ export default class LinkedList {
 
   contains(row, col) {
     let current = this.head;
-    while (current) {
+    while (current !== null) {
       if (current.row === row && current.col === col) {
         return true;
       }

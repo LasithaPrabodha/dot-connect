@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: repeat(10, 50px);
   grid-template-rows: repeat(10, 50px);
+  justify-content: center;
 }
 
 .dot {
@@ -14,4 +15,21 @@
 
 .dot.selected {
   border: 2px #000000 solid;
+}
+
+.scores {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.turn {
+  border: 1px black solid;
+  padding: 4px;
+}
+
+button {
+  margin: 0 auto;
+  display: block;
 }
