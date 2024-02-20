@@ -45,6 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const clickedDotRow = +clickedDot.dataset.row;
     const clickedDotCol = +clickedDot.dataset.col;
 
+    selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
+  }
+
+  function selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
     if (isNaN(clickedDotRow) && isNaN(clickedDotCol)) return;
 
     const isSelected = selectedDots.contains(clickedDotRow, clickedDotCol);
@@ -153,15 +157,25 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector(`#score${turn + 1}`).classList.add("turn");
 
     score = [0, 0];
-    scoreDisplayP1.textContent = 0
-    scoreDisplayP2.textContent = 0
+    scoreDisplayP1.textContent = 0;
+    scoreDisplayP2.textContent = 0;
   }
-
-  gridElm.addEventListener("click", handleDotClick);
 
   startButton.addEventListener("click", () => {
     init();
     generateGrid();
     updateScore(0);
+  });
+
+  gridElm.addEventListener("mousedown", (event) => {
+    if (Object.keys(event.target.dataset).length) {
+      handleDotClick(event);
+    }
+  });
+
+  gridElm.addEventListener("mouseover", function (event) {
+    if (event.buttons == 1 && Object.keys(event.target.dataset).length) {
+      handleDotClick(event);
+    }
   });
 });
