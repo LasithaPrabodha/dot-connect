@@ -1,1 +1,1 @@
-Simple game built with linked lists and DFS 
+Simple game built with linked lists
