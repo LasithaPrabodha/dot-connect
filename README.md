@@ -5,6 +5,8 @@ Dots Connect is a minimalist two-player game where players take turns connecting
 
 ![image](./demo.gif)
 
+[Play it online](https://lasithaprabodha.github.io/dot-connect)
+
 ### Features
 - Two-player mode - Play against another person locally.
 - AI mode - Play against an AI opponent for a solo challenge.
