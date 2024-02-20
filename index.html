@@ -8,7 +8,10 @@
   </head>
   <body class="center">
     <h2>Dots Connect</h2>
-    <div class="center">
+    <div class="game-wrapper center">
+      <button id="reset">
+        <img src="./images/refresh.png" alt="refresh" width="20" />
+      </button>
       <div id="game-grid"></div>
       <div class="scores">
         <div id="score1">P1 Score: <span id="score-value-1">0</span></div>
@@ -17,7 +20,11 @@
       </div>
       <button class="btn btn-dark" id="start-button">Start Game</button>
 
-      <p>Click / click and drag over dots to connect</p>
+      <div class="game-mode">
+        <button class="game-mode-option btn btn-dark" id="gm-human">With Your Friend</button>
+        <button class="game-mode-option btn btn-dark" id="gm-ai">With AI</button>
+      </div>
+      <p class="hint">Click / click and drag over dots to connect</p>
     </div>
     <script src="js/consts.js"></script>
     <script type="module" src="js/script.js"></script>

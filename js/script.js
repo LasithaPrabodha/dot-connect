@@ -1,9 +1,15 @@
 import { isSameColor, isValidDot } from "./common.js";
 import { hasValidConnect } from "./has-valid-connection.js";
+import { findLongestConnectionWithColor } from "./find-longest-connection-with-color.js";
 import LinkedList from "./linked-list.js";
 
 const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
+};
+
+const modes = {
+  AI: "AI",
+  HUMAN: "HUMAN",
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,14 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const grid = [];
   const scoreDisplayP1 = document.getElementById("score-value-1");
   const scoreDisplayP2 = document.getElementById("score-value-2");
+  const btnHuman = document.getElementById("gm-human");
+  const btnAi = document.getElementById("gm-ai");
   const startButton = document.getElementById("start-button");
+  const gameModeElm = document.querySelector(".game-mode");
+  const gameWrapperElm = document.querySelector(".game-wrapper");
   let turn = 0;
   let moves = 0;
+  let mode = null;
 
   let lastSelectedDot = null;
   let score = [0, 0];
   let selectedDots = new LinkedList();
-  let longestPath = new LinkedList();
 
   function generateGrid() {
     gridElm.innerHTML = "";
@@ -49,12 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const clickedDotRow = +clickedDot.dataset.row;
     const clickedDotCol = +clickedDot.dataset.col;
 
-    selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
+    processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
   }
 
-  async function selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
-    if (isNaN(clickedDotRow) && isNaN(clickedDotCol)) return;
-
+  function updateUi(clickedDot, clickedDotRow, clickedDotCol) {
     const isSelected = selectedDots.contains(clickedDotRow, clickedDotCol);
 
     if (!isSelected) {
@@ -65,6 +73,25 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedDots.remove(clickedDotRow, clickedDotCol);
       clickedDot.classList.remove("selected");
     }
+  }
+
+  function updateTurn() {
+    document.querySelector(`#score${turn + 1}`).classList.remove("turn");
+    turn = +!turn;
+    document.querySelector(`#score${turn + 1}`).classList.add("turn");
+  }
+
+  function updateScoreAndReset() {
+    updateScore(selectedDots.length);
+    removeSelectedDots();
+    updateTurn();
+    selectedDots = new LinkedList();
+  }
+
+  async function processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
+    if (isNaN(clickedDotRow) && isNaN(clickedDotCol)) return;
+
+    updateUi(clickedDot, clickedDotRow, clickedDotCol);
 
     let isValid = false;
     if (lastSelectedDot && lastSelectedDot.color === clickedDotColor) {
@@ -96,14 +123,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!hasValidAdjacent) {
         await delay(300);
-        updateScore(selectedDots.length);
-        removeSelectedDots();
+        updateScoreAndReset();
 
-        document.querySelector(`#score${turn + 1}`).classList.remove("turn");
-        turn = +!turn;
-        document.querySelector(`#score${turn + 1}`).classList.add("turn");
+        if (mode === modes.AI && turn == 1) {
+          const longest = findLongestConnectionWithColor(grid);
 
-        selectedDots = new LinkedList();
+          let current = longest.head;
+          while (current) {
+            const cell = document.querySelector(`.dot[data-row="${current.row}"][data-col="${current.col}"]`);
+
+            updateUi(cell, current.row, current.col);
+            await delay(300);
+
+            current = current.next;
+          }
+
+          updateScoreAndReset();
+        }
         return;
       }
     } else {
@@ -159,15 +195,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const turns = [0, 1];
     turns.forEach((t) => document.querySelector(`#score${t + 1}`).classList.remove("turn"));
-    turn = turns[Math.floor(Math.random() * turns.length)];
+
+    if (mode === modes.HUMAN) {
+      turn = turns[Math.floor(Math.random() * turns.length)];
+    } else {
+      turn = 0;
+    }
+
     document.querySelector(`#score${turn + 1}`).classList.add("turn");
 
     score = [0, 0];
     scoreDisplayP1.textContent = 0;
     scoreDisplayP2.textContent = 0;
+
+    gameWrapperElm.classList.add("started");
   }
 
-  startButton.addEventListener("click", () => {
+  startButton.addEventListener("click", (event) => {
+    if (mode == null) {
+      event.target.style.display = "none";
+      gameModeElm.style.display = "flex";
+    }
+  });
+
+  btnHuman.addEventListener("click", () => {
+    mode = modes.HUMAN;
+    gameModeElm.style.display = "none";
+
+    init();
+    generateGrid();
+    updateScore(0);
+  });
+
+  btnAi.addEventListener("click", () => {
+    mode = modes.AI;
+    gameModeElm.style.display = "none";
+
     init();
     generateGrid();
     updateScore(0);
@@ -183,5 +246,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.buttons == 1 && Object.keys(event.target.dataset).length) {
       handleDotClick(event);
     }
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    mode = null;
+    startButton.style.display = "block";
+    gameModeElm.style.display = "none";
+    gameWrapperElm.classList.remove("started");
+
   });
 });
