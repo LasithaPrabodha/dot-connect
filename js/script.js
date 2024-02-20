@@ -256,8 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("reset").addEventListener("click", () => {
     mode = null;
-    startButton.style.display = "block";
-    gameModeElm.style.display = "none";
+    startButton.style.display = "none";
+    gameModeElm.style.display = "flex";
     gameWrapperElm.classList.remove("started");
   });
 });
