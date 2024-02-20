@@ -1,4 +1,3 @@
-// Define a Node class for the linked list
 class Node {
   constructor(row, col) {
     this.row = row;
@@ -7,7 +6,6 @@ class Node {
   }
 }
 
-// Define a LinkedList class to manage the selected dots
 export default class LinkedList {
   constructor() {
     this.head = null;
@@ -15,7 +13,6 @@ export default class LinkedList {
     this.length = 0;
   }
 
-  // Method to add a new node to the end of the linked list
   append(row, col) {
     const newNode = new Node(row, col);
     if (!this.head) {
@@ -28,7 +25,6 @@ export default class LinkedList {
     this.length++;
   }
 
-  // Method to remove a node from the linked list
   remove(row, col) {
     if (!this.head) return;
 
