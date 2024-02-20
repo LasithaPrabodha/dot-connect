@@ -222,6 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
     mode = modes.HUMAN;
     gameModeElm.style.display = "none";
 
+    document.getElementById("p1").innerText = "Player 1";
+    document.getElementById("p2").innerText = "Player 2";
+
     init();
     generateGrid();
     updateScore(0);
@@ -230,6 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
   btnAi.addEventListener("click", () => {
     mode = modes.AI;
     gameModeElm.style.display = "none";
+
+    document.getElementById("p1").innerText = "Your";
+    document.getElementById("p2").innerText = "AI";
 
     init();
     generateGrid();
@@ -253,6 +259,5 @@ document.addEventListener("DOMContentLoaded", () => {
     startButton.style.display = "block";
     gameModeElm.style.display = "none";
     gameWrapperElm.classList.remove("started");
-
   });
 });
