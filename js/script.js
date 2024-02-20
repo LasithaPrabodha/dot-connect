@@ -2,6 +2,10 @@ import { isSameColor, isValidDot } from "./common.js";
 import { hasValidConnect } from "./has-valid-connection.js";
 import LinkedList from "./linked-list.js";
 
+const delay = (delayInms) => {
+  return new Promise((resolve) => setTimeout(resolve, delayInms));
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const gridElm = document.getElementById("game-grid");
   const grid = [];
@@ -25,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const dot = document.createElement("div");
         const color = getRandomColor();
         dot.classList.add("dot");
-        dot.style.backgroundColor = color;
+        dot.dataset.color = color;
         dot.dataset.row = i;
         dot.dataset.col = j;
         gridElm.appendChild(dot);
@@ -41,14 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleDotClick(event) {
     const clickedDot = event.target;
-    const clickedDotColor = clickedDot.style.backgroundColor;
+    const clickedDotColor = clickedDot.dataset.color;
     const clickedDotRow = +clickedDot.dataset.row;
     const clickedDotCol = +clickedDot.dataset.col;
 
     selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
   }
 
-  function selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
+  async function selectDot(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
     if (isNaN(clickedDotRow) && isNaN(clickedDotCol)) return;
 
     const isSelected = selectedDots.contains(clickedDotRow, clickedDotCol);
@@ -91,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!hasValidAdjacent) {
+        await delay(300);
         updateScore(selectedDots.length);
         removeSelectedDots();
 
@@ -104,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // clear previously selected dots
       if (lastSelectedDot) {
+        await delay(300);
         removeSelectedDots(false);
         selectedDots = new LinkedList();
         return;
@@ -143,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function replaceWithRandomColor(cell, grid, current) {
     const color = getRandomColor();
 
-    cell.style.backgroundColor = color;
+    cell.dataset.color = color;
     grid[current.row][current.col] = color;
   }
 

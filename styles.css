@@ -14,7 +14,7 @@
 }
 
 .dot.selected {
-  border: 2px #000000 solid;
+  border: 2px #3e3232 solid;
 }
 
 .scores {
@@ -22,14 +22,92 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 100%;
+}
+
+.scores > * {
+  padding: 10px;
 }
 
 .turn {
-  border: 1px black solid;
-  padding: 4px;
+  border: 1px #3e3232 solid;
+  border-radius: 50px;
+}
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-button {
-  margin: 0 auto;
+.dot[data-color="red"] {
+  background-color: #eb5353;
+}
+
+.dot[data-color="blue"] {
+  background-color: #187498;
+}
+
+.dot[data-color="green"] {
+  background-color: #36ae7c;
+}
+
+.dot[data-color="yellow"] {
+  background-color: #f9d923;
+}
+.btn {
+  display: inline-block;
+  margin: 6px;
+  font-size: inherit;
+  line-height: 1.42;
+  padding: 0.6em 1.6em;
+  font-weight: normal;
+  border-width: 2px;
+  border-style: solid;
+  background: transparent;
+  border-radius: 1.46em;
+  cursor: pointer;
+  font-family: "Booster Next FY", "Avenir Next", Avenir, sans-serif;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+  transition: background-color 0.3s, color 0.3s;
+  margin-top: 32px;
+}
+.btn:hover:after {
+  transform: scaleX(1);
+  opacity: 1;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.btn:after {
+  content: "";
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  border-radius: 1.46em;
+  transform: scaleX(0.7);
+  opacity: 0;
+  transition: transform 0.8s, opacity 0.3s;
+}
+.btn-dark {
+  color: #3f4351;
+  border-color: #3f4351;
+}
+.btn-dark:hover {
+  color: #e6eaef;
+  background-color: #3f4351;
+}
+.btn-dark:active {
+  background-color: #383c48;
+}
+.btn-dark:active:after {
+  background-color: #383c48;
+}
+.btn-dark:after {
+  background-color: #3f4351;
 }
