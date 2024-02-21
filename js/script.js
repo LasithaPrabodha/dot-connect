@@ -7,11 +7,6 @@ const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
 };
 
-const modes = {
-  AI: "AI",
-  HUMAN: "HUMAN",
-};
-
 document.addEventListener("DOMContentLoaded", () => {
   const gridElm = document.getElementById("game-grid");
   const grid = [];
@@ -23,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameModeElm = document.querySelector(".game-mode");
   const gameWrapperElm = document.querySelector(".game-wrapper");
   let turn = 0;
-  let moves = 0;
   let mode = null;
 
   let lastSelectedDot = null;
@@ -68,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isSelected) {
       selectedDots.append(clickedDotRow, clickedDotCol);
       clickedDot.classList.add("selected");
-      updateMoves();
     } else {
       selectedDots.remove(clickedDotRow, clickedDotCol);
       clickedDot.classList.remove("selected");
@@ -159,15 +152,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (turn === 0) {
       score[0] += newScore;
       scoreDisplayP1.textContent = score[0];
+
+      if (score[0] >= 100) {
+        alert(`${mode === modes.AI ? "You win!" : "Player 1 wins!"}`);
+
+        reset();
+      
+      }
     } else {
       score[1] += newScore;
       scoreDisplayP2.textContent = score[1];
-    }
-  }
+      if (score[1] >= 100) {
+        alert(`${mode === modes.AI ? "AI" : "Player 2"} wins!`);
 
-  function updateMoves() {
-    moves++;
-    document.querySelector("#moves").textContent = moves;
+        reset();
+      }
+    }
   }
 
   function removeSelectedDots(randomize = true) {
@@ -190,9 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function init() {
-    moves = 0;
-    document.querySelector("#moves").textContent = moves;
-
     const turns = [0, 1];
     turns.forEach((t) => document.querySelector(`#score${t + 1}`).classList.remove("turn"));
 
@@ -211,6 +208,12 @@ document.addEventListener("DOMContentLoaded", () => {
     gameWrapperElm.classList.add("started");
   }
 
+  function reset(){
+    mode = null;
+    startButton.style.display = "none";
+    gameModeElm.style.display = "flex";
+    gameWrapperElm.classList.remove("started");
+  }
   startButton.addEventListener("click", (event) => {
     if (mode == null) {
       event.target.style.display = "none";
@@ -227,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     init();
     generateGrid();
-    updateScore(0);
   });
 
   btnAi.addEventListener("click", () => {
@@ -239,7 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     init();
     generateGrid();
-    updateScore(0);
   });
 
   gridElm.addEventListener("mousedown", (event) => {
@@ -255,9 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("reset").addEventListener("click", () => {
-    mode = null;
-    startButton.style.display = "none";
-    gameModeElm.style.display = "flex";
-    gameWrapperElm.classList.remove("started");
+   reset()
   });
 });
