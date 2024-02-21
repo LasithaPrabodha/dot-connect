@@ -1,5 +1,7 @@
+import { numCols, numRows } from "./consts.js";
+
 // Function to check if a dot is valid (within grid boundaries)
-export function isValidDot(row, col, numRows, numCols) {
+export function isValidDot(row, col) {
   return row >= 0 && row < numRows && col >= 0 && col < numCols;
 }
 
@@ -8,7 +10,7 @@ export function isSameColor(row, col, color, grid) {
   return grid[row][col] === color;
 }
 // Function to initialize the visited array
-export function initializeVisitedArray(numRows, numCols) {
+export function initializeVisitedArray() {
   return Array.from({ length: numRows }, () => Array(numCols).fill(false));
 }
 export function isAdjacentToPreviousDot(prevRow, prevCol, newRow, newCol) {

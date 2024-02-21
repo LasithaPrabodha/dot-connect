@@ -1,10 +1,9 @@
-import { isSameColor, isValidDot } from "./common.js";
+import { initializeVisitedArray, isSameColor, isValidDot } from "./common.js";
+import { numCols, numRows } from "./consts.js";
 import LinkedList from "./linked-list.js";
 
 // Function to find the longest connection of dots with the same color from the grid
 export function findLongestConnectionWithColor(grid) {
-  const numRows = grid.length;
-  const numCols = grid[0].length;
   let longestPath = new LinkedList();
 
   // Function for DFS traversal
@@ -23,9 +22,7 @@ export function findLongestConnectionWithColor(grid) {
       const newRow = row + dx;
       const newCol = col + dy;
       const isValid =
-        isValidDot(newRow, newCol, numRows, numCols) &&
-        isSameColor(newRow, newCol, color, grid) &&
-        !visited[newRow][newCol];
+        isValidDot(newRow, newCol) && isSameColor(newRow, newCol, color, grid) && !visited[newRow][newCol];
 
       if (isValid) {
         dfs(newRow, newCol, color, visited, path); // Recursive call
@@ -45,10 +42,10 @@ export function findLongestConnectionWithColor(grid) {
     }
 
     visited[row][col] = false;
-    path.remove(row, col); // Backtrack: Remove the current dot from the path
+    path.remove(row, col); // Backtrack: Remove the current dot from the path cuz its invalid
   }
 
-  const visited = Array.from({ length: numRows }, () => Array(numCols).fill(false));
+  const visited = initializeVisitedArray();
 
   for (let i = 0; i < numRows; i++) {
     for (let j = 0; j < numCols; j++) {

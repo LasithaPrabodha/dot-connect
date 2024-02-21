@@ -2,6 +2,7 @@ import { isSameColor, isValidDot } from "./common.js";
 import { hasValidConnect } from "./has-valid-connection.js";
 import { findLongestConnectionWithColor } from "./find-longest-connection-with-color.js";
 import LinkedList from "./linked-list.js";
+import { modes, numCols, numRows } from "./consts.js";
 
 const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
@@ -101,11 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let hasValidAdjacent = false;
 
+      // Look for a valid adjacent cell
       for (const [dx, dy] of directions) {
         const newRow = clickedDotRow + dx;
         const newCol = clickedDotCol + dy;
         const isNewDotValid =
-          isValidDot(newRow, newCol, numRows, numCols) &&
+          isValidDot(newRow, newCol) &&
           isSameColor(newRow, newCol, clickedDotColor, grid) &&
           !selectedDots.contains(newRow, newCol);
 
@@ -115,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!hasValidAdjacent) {
+        // we've came to the end of dot selection, update score
         await delay(300);
         updateScoreAndReset();
 
@@ -136,8 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
     } else {
-      // clear previously selected dots
+      // selected dot does not make a valid connection, clear previously selected dots
       if (lastSelectedDot) {
+        // clear previously selected dots
         await delay(300);
         removeSelectedDots(false);
         selectedDots = new LinkedList();
@@ -157,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(`${mode === modes.AI ? "You win!" : "Player 1 wins!"}`);
 
         reset();
-      
       }
     } else {
       score[1] += newScore;
@@ -208,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gameWrapperElm.classList.add("started");
   }
 
-  function reset(){
+  function reset() {
     mode = null;
     startButton.style.display = "none";
     gameModeElm.style.display = "flex";
@@ -256,6 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("reset").addEventListener("click", () => {
-   reset()
+    reset();
   });
 });
