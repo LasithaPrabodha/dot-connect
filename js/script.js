@@ -4,6 +4,9 @@ import { findLongestConnectionWithColor } from "./find-longest-connection-with-c
 import LinkedList from "./linked-list.js";
 import { modes, numCols, numRows } from "./consts.js";
 
+import "../persistence/firebase-config.js";
+import { initSession } from "../persistence/write.js";
+
 const delay = (delayInms) => {
   return new Promise((resolve) => setTimeout(resolve, delayInms));
 };
@@ -247,13 +250,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   gridElm.addEventListener("mousedown", (event) => {
-    if (Object.keys(event.target.dataset).length) {
+    if (Object.keys(event.target.dataset).length && ((mode === modes.AI && turn === 0) || mode === modes.HUMAN)) {
       handleDotClick(event);
     }
   });
 
   gridElm.addEventListener("mouseover", function (event) {
-    if (event.buttons == 1 && Object.keys(event.target.dataset).length) {
+    if (
+      event.buttons == 1 &&
+      Object.keys(event.target.dataset).length &&
+      ((mode === modes.AI && turn === 0) || mode === modes.HUMAN)
+    ) {
       handleDotClick(event);
     }
   });

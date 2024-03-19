@@ -4,27 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect the Dots</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.scss" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Waiting+for+the+Sunrise&display=swap" rel="stylesheet" />
   </head>
   <body class="center">
     <h2>Dots Connect</h2>
     <div class="game-wrapper center">
       <button id="reset">
-        <img src="./images/refresh.png" alt="refresh" width="20" />
+        <img src="./images/refresh-icon.svg" alt="refresh" width="20" />
       </button>
-      <div id="game-grid"></div>
-      <div class="scores">
-        <div id="score1"><span id="p1">P1</span> Score: <span id="score-value-1">0</span></div>
-        <div>Target: <span id="targetScore">100</span></div>
-        <div id="score2"><span id="p2">P2</span> Score: <span id="score-value-2">0</span></div>
+
+      <div class="game-view">
+        <div id="game-grid"></div>
+
+        <div class="scores">
+          <div id="score1"><span id="p1">P1</span> Score: <span id="score-value-1">0</span></div>
+          <div>Target: <span id="targetScore">100</span></div>
+          <div id="score2"><span id="p2">P2</span> Score: <span id="score-value-2">0</span></div>
+        </div>
+
+        <p class="hint">Click or click and drag over dots to connect</p>
       </div>
+
       <button class="btn btn-dark" id="start-button">Start Game</button>
 
       <div class="game-mode">
         <button class="game-mode-option btn btn-dark" id="gm-human">Two-players</button>
         <button class="game-mode-option btn btn-dark" id="gm-ai">With AI</button>
       </div>
-      <p class="hint">Click / click and drag over dots to connect</p>
     </div>
     <script type="module" src="js/script.js"></script>
   </body>
