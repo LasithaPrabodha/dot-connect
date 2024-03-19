@@ -6,12 +6,9 @@
     <title>Connect the Dots</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Upright:wght@300;400;500;600;700&family=Liu+Jian+Mao+Cao&display=swap"
-      rel="stylesheet"
-    />
-    <script type="module" crossorigin src="/dot-connect/assets/index-CiRlstP-.js"></script>
-    <link rel="stylesheet" crossorigin href="/dot-connect/assets/index-BYVJ5Nij.css">
+    <link href="https://fonts.googleapis.com/css2?family=Waiting+for+the+Sunrise&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/dot-connect/assets/index-Be2HHMPL.js"></script>
+    <link rel="stylesheet" crossorigin href="/dot-connect/assets/index-CyI_lJtV.css">
   </head>
   <body class="center">
     <h2>Dots Connect</h2>
@@ -19,19 +16,25 @@
       <button id="reset">
         <img src="data:image/svg+xml,%3csvg%20id='Layer_1'%20data-name='Layer%201'%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20118.04%20122.88'%3e%3cpath%20fill='%23bdbddd'%20d='M16.08,59.26A8,8,0,0,1,0,59.26a59,59,0,0,1,97.13-45V8a8,8,0,1,1,16.08,0V33.35a8,8,0,0,1-8,8L80.82,43.62a8,8,0,1,1-1.44-15.95l8-.73A43,43,0,0,0,16.08,59.26Zm22.77,19.6a8,8,0,0,1,1.44,16l-10.08.91A42.95,42.95,0,0,0,102,63.86a8,8,0,0,1,16.08,0A59,59,0,0,1,22.3,110v4.18a8,8,0,0,1-16.08,0V89.14h0a8,8,0,0,1,7.29-8l25.31-2.3Z'/%3e%3c/svg%3e" alt="refresh" width="20" />
       </button>
-      <div id="game-grid"></div>
-      <div class="scores">
-        <div id="score1"><span id="p1">P1</span> Score: <span id="score-value-1">0</span></div>
-        <div>Target: <span id="targetScore">100</span></div>
-        <div id="score2"><span id="p2">P2</span> Score: <span id="score-value-2">0</span></div>
+
+      <div class="game-view">
+        <div id="game-grid"></div>
+
+        <div class="scores">
+          <div id="score1"><span id="p1">P1</span> Score: <span id="score-value-1">0</span></div>
+          <div>Target: <span id="targetScore">100</span></div>
+          <div id="score2"><span id="p2">P2</span> Score: <span id="score-value-2">0</span></div>
+        </div>
+
+        <p class="hint">Click or click and drag over dots to connect</p>
       </div>
+
       <button class="btn btn-dark" id="start-button">Start Game</button>
 
       <div class="game-mode">
         <button class="game-mode-option btn btn-dark" id="gm-human">Two-players</button>
         <button class="game-mode-option btn btn-dark" id="gm-ai">With AI</button>
       </div>
-      <p class="hint">Click / click and drag over dots to connect</p>
     </div>
   </body>
 </html>
