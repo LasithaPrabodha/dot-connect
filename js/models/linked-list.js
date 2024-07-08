@@ -1,10 +1,4 @@
-class Node {
-  constructor(row, col) {
-    this.row = row;
-    this.col = col;
-    this.next = null;
-  }
-}
+import Node from "./node.js";
 
 export default class LinkedList {
   constructor() {

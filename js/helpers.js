@@ -1,6 +1,33 @@
-import { initializeVisitedArray, isSameColor, isValidDot } from "./common.js";
 import { numCols, numRows } from "./consts.js";
-import LinkedList from "./linked-list.js";
+import LinkedList from "./models/linked-list.js";
+import { isSameColor, isValidDot } from "./utils.js";
+
+// Function to initialize the visited array
+export function initializeVisitedArray() {
+  return Array.from({ length: numRows }, () => Array(numCols).fill(false));
+}
+export function isAdjacentToPreviousDot(prevRow, prevCol, newRow, newCol) {
+  const rowDiff = Math.abs(newRow - prevRow);
+  const colDiff = Math.abs(newCol - prevCol);
+  return rowDiff <= 1 && colDiff <= 1 && rowDiff + colDiff !== 0;
+}
+
+// Function to check if a line between two dots intersects any previously selected dots
+export function hasValidConnect(startRow, startCol, endRow, endCol) {
+  const isHorizontal = startRow === endRow;
+  const isVertical = startCol === endCol;
+
+  // If the line is diagonal
+  if (!isHorizontal && !isVertical) {
+    return false;
+  }
+
+  if (!isAdjacentToPreviousDot(startRow, startCol, endRow, endCol)) {
+    return false;
+  }
+
+  return true;
+}
 
 // Function to find the longest connection of dots with the same color from the grid
 export function findLongestConnectionWithColor(grid) {

@@ -1,98 +1,164 @@
-import { isSameColor, isValidDot } from "./common.js";
-import { hasValidConnect } from "./has-valid-connection.js";
-import { findLongestConnectionWithColor } from "./find-longest-connection-with-color.js";
-import LinkedList from "./linked-list.js";
+import { hasValidConnect, findLongestConnectionWithColor } from "./helpers.js";
+import { isSameColor, isValidDot, delay } from "./utils.js";
+
+import LinkedList from "./models/linked-list.js";
 import { modes, numCols, numRows } from "./consts.js";
 
 import "../persistence/firebase-config.js";
 import { initSession } from "../persistence/write.js";
 
-const delay = (delayInms) => {
-  return new Promise((resolve) => setTimeout(resolve, delayInms));
-};
+class DotGame {
+  constructor() {
+    this.gridElm = document.getElementById("game-grid");
+    this.scoreDisplayP1 = document.getElementById("score-value-1");
+    this.scoreDisplayP2 = document.getElementById("score-value-2");
+    this.btnHuman = document.getElementById("gm-human");
+    this.btnAi = document.getElementById("gm-ai");
+    this.startButton = document.getElementById("start-button");
+    this.gameModeElm = document.querySelector(".game-mode");
+    this.gameWrapperElm = document.querySelector(".game-wrapper");
+    this.grid = [];
+    this.turn = 0;
+    this.mode = null;
+    this.lastSelectedDot = null;
+    this.score = [0, 0];
+    this.selectedDots = new LinkedList();
 
-document.addEventListener("DOMContentLoaded", () => {
-  const gridElm = document.getElementById("game-grid");
-  const grid = [];
-  const scoreDisplayP1 = document.getElementById("score-value-1");
-  const scoreDisplayP2 = document.getElementById("score-value-2");
-  const btnHuman = document.getElementById("gm-human");
-  const btnAi = document.getElementById("gm-ai");
-  const startButton = document.getElementById("start-button");
-  const gameModeElm = document.querySelector(".game-mode");
-  const gameWrapperElm = document.querySelector(".game-wrapper");
-  let turn = 0;
-  let mode = null;
+    this.addEventListeners();
+  }
 
-  let lastSelectedDot = null;
-  let score = [0, 0];
-  let selectedDots = new LinkedList();
+  addEventListeners() {
+    document.addEventListener("DOMContentLoaded", this.initializeGame.bind(this));
+    this.startButton.addEventListener("click", this.showGameModes.bind(this));
+    this.btnHuman.addEventListener("click", this.startHumanMode.bind(this));
+    this.btnAi.addEventListener("click", this.startAIMode.bind(this));
+    this.gridElm.addEventListener("mousedown", this.handleDotSelection.bind(this));
+    this.gridElm.addEventListener("mouseover", this.handleDotHover.bind(this));
+    document.getElementById("reset").addEventListener("click", this.resetGame.bind(this));
+  }
 
-  function generateGrid() {
-    gridElm.innerHTML = "";
+  initializeGame() {
+    this.resetUI();
+  }
 
+  resetUI() {
+    this.mode = null;
+    this.startButton.style.display = "none";
+    this.gameModeElm.style.display = "flex";
+    this.gameWrapperElm.classList.remove("started");
+  }
+
+  showGameModes(event) {
+    if (!this.mode) {
+      event.target.style.display = "none";
+      this.gameModeElm.style.display = "flex";
+    }
+  }
+
+  startHumanMode() {
+    this.mode = modes.HUMAN;
+    this.gameModeElm.style.display = "none";
+    document.getElementById("p1").innerText = "Player 1";
+    document.getElementById("p2").innerText = "Player 2";
+    this.initGame();
+  }
+
+  startAIMode() {
+    this.mode = modes.AI;
+    this.gameModeElm.style.display = "none";
+    document.getElementById("p1").innerText = "Your";
+    document.getElementById("p2").innerText = "AI";
+    this.initGame();
+  }
+
+  initGame() {
+    this.turn = this.mode === modes.HUMAN ? Math.floor(Math.random() * 2) : 0;
+    document.querySelector(`#score${this.turn + 1}`).classList.add("turn");
+    this.score = [0, 0];
+    this.scoreDisplayP1.textContent = 0;
+    this.scoreDisplayP2.textContent = 0;
+    this.gameWrapperElm.classList.add("started");
+    this.generateGrid();
+  }
+
+  generateGrid() {
+    this.gridElm.innerHTML = "";
     for (let i = 0; i < numRows; i++) {
-      grid[i] = [];
+      this.grid[i] = [];
       for (let j = 0; j < numCols; j++) {
         const dot = document.createElement("div");
-        const color = getRandomColor();
+        const color = this.getRandomColor();
         dot.classList.add("dot");
         dot.dataset.color = color;
         dot.dataset.row = i;
         dot.dataset.col = j;
-        gridElm.appendChild(dot);
-        grid[i][j] = color;
+        this.gridElm.appendChild(dot);
+        this.grid[i][j] = color;
       }
     }
   }
 
-  function getRandomColor() {
+  getRandomColor() {
     const colors = ["red", "blue", "green", "yellow"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  function handleDotClick(event) {
+  handleDotSelection(event) {
+    if (
+      Object.keys(event.target.dataset).length &&
+      ((this.mode === modes.AI && this.turn === 0) || this.mode === modes.HUMAN)
+    ) {
+      this.handleDotClick(event);
+    }
+  }
+
+  handleDotHover(event) {
+    if (
+      event.buttons === 1 &&
+      Object.keys(event.target.dataset).length &&
+      ((this.mode === modes.AI && this.turn === 0) || this.mode === modes.HUMAN)
+    ) {
+      this.handleDotClick(event);
+    }
+  }
+
+  async handleDotClick(event) {
     const clickedDot = event.target;
     const clickedDotColor = clickedDot.dataset.color;
     const clickedDotRow = +clickedDot.dataset.row;
     const clickedDotCol = +clickedDot.dataset.col;
-
-    processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
+    await this.processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol);
   }
 
-  function updateUi(clickedDot, clickedDotRow, clickedDotCol) {
-    const isSelected = selectedDots.contains(clickedDotRow, clickedDotCol);
-
+  updateUi(clickedDot, clickedDotRow, clickedDotCol) {
+    const isSelected = this.selectedDots.contains(clickedDotRow, clickedDotCol);
     if (!isSelected) {
-      selectedDots.append(clickedDotRow, clickedDotCol);
+      this.selectedDots.append(clickedDotRow, clickedDotCol);
       clickedDot.classList.add("selected");
     } else {
-      selectedDots.remove(clickedDotRow, clickedDotCol);
+      this.selectedDots.remove(clickedDotRow, clickedDotCol);
       clickedDot.classList.remove("selected");
     }
   }
 
-  function updateTurn() {
-    document.querySelector(`#score${turn + 1}`).classList.remove("turn");
-    turn = +!turn;
-    document.querySelector(`#score${turn + 1}`).classList.add("turn");
+  updateTurn() {
+    document.querySelector(`#score${this.turn + 1}`).classList.remove("turn");
+    this.turn = +!this.turn;
+    document.querySelector(`#score${this.turn + 1}`).classList.add("turn");
   }
 
-  function updateScoreAndReset() {
-    updateScore(selectedDots.length);
-    removeSelectedDots();
-    updateTurn();
-    selectedDots = new LinkedList();
-  }
-
-  async function processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
-    if (isNaN(clickedDotRow) && isNaN(clickedDotCol)) return;
-
-    updateUi(clickedDot, clickedDotRow, clickedDotCol);
-
+  async processDotSelection(clickedDot, clickedDotColor, clickedDotRow, clickedDotCol) {
+    if (isNaN(clickedDotRow) || isNaN(clickedDotCol)) return;
+    this.updateUi(clickedDot, clickedDotRow, clickedDotCol);
     let isValid = false;
-    if (lastSelectedDot && lastSelectedDot.color === clickedDotColor) {
-      isValid = hasValidConnect(lastSelectedDot.row, lastSelectedDot.col, clickedDotRow, clickedDotCol, selectedDots);
+    if (this.lastSelectedDot && this.lastSelectedDot.color === clickedDotColor) {
+      isValid = hasValidConnect(
+        this.lastSelectedDot.row,
+        this.lastSelectedDot.col,
+        clickedDotRow,
+        clickedDotCol,
+        this.selectedDots
+      );
     }
 
     if (isValid) {
@@ -102,170 +168,92 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, -1],
         [0, 1],
       ];
-
       let hasValidAdjacent = false;
-
-      // Look for a valid adjacent cell
       for (const [dx, dy] of directions) {
         const newRow = clickedDotRow + dx;
         const newCol = clickedDotCol + dy;
         const isNewDotValid =
           isValidDot(newRow, newCol) &&
-          isSameColor(newRow, newCol, clickedDotColor, grid) &&
-          !selectedDots.contains(newRow, newCol);
-
+          isSameColor(newRow, newCol, clickedDotColor, this.grid) &&
+          !this.selectedDots.contains(newRow, newCol);
         if (isNewDotValid) {
           hasValidAdjacent = true;
         }
       }
 
       if (!hasValidAdjacent) {
-        // we've came to the end of dot selection, update score
         await delay(300);
-        updateScoreAndReset();
-
-        if (mode === modes.AI && turn == 1) {
-          const longest = findLongestConnectionWithColor(grid);
-
+        this.updateScoreAndReset();
+        if (this.mode === modes.AI && this.turn === 1) {
+          const longest = findLongestConnectionWithColor(this.grid);
           let current = longest.head;
           while (current) {
             const cell = document.querySelector(`.dot[data-row="${current.row}"][data-col="${current.col}"]`);
-
-            updateUi(cell, current.row, current.col);
+            this.updateUi(cell, current.row, current.col);
             await delay(300);
-
             current = current.next;
           }
-
-          updateScoreAndReset();
+          this.updateScoreAndReset();
         }
         return;
       }
     } else {
-      // selected dot does not make a valid connection, clear previously selected dots
-      if (lastSelectedDot) {
-        // clear previously selected dots
+      if (this.lastSelectedDot) {
         await delay(300);
-        removeSelectedDots(false);
-        selectedDots = new LinkedList();
+        this.removeSelectedDots(false);
+        this.selectedDots = new LinkedList();
         return;
       }
     }
-
-    lastSelectedDot = { row: clickedDotRow, col: clickedDotCol, color: clickedDotColor };
+    this.lastSelectedDot = { row: clickedDotRow, col: clickedDotCol, color: clickedDotColor };
   }
 
-  function updateScore(newScore) {
-    if (turn === 0) {
-      score[0] += newScore;
-      scoreDisplayP1.textContent = score[0];
+  updateScoreAndReset() {
+    this.updateScore(this.selectedDots.length);
+    this.removeSelectedDots();
+    this.updateTurn();
+    this.selectedDots = new LinkedList();
+  }
 
-      if (score[0] >= 100) {
-        alert(`${mode === modes.AI ? "You win!" : "Player 1 wins!"}`);
-
-        reset();
+  updateScore(newScore) {
+    if (this.turn === 0) {
+      this.score[0] += newScore;
+      this.scoreDisplayP1.textContent = this.score[0];
+      if (this.score[0] >= 100) {
+        alert(`${this.mode === modes.AI ? "You win!" : "Player 1 wins!"}`);
+        this.resetUI();
       }
     } else {
-      score[1] += newScore;
-      scoreDisplayP2.textContent = score[1];
-      if (score[1] >= 100) {
-        alert(`${mode === modes.AI ? "AI" : "Player 2"} wins!`);
-
-        reset();
+      this.score[1] += newScore;
+      this.scoreDisplayP2.textContent = this.score[1];
+      if (this.score[1] >= 100) {
+        alert(`${this.mode === modes.AI ? "AI" : "Player 2"} wins!`);
+        this.resetUI();
       }
     }
   }
 
-  function removeSelectedDots(randomize = true) {
-    let current = selectedDots.head;
+  removeSelectedDots(randomize = true) {
+    let current = this.selectedDots.head;
     while (current !== null) {
       const cell = document.querySelector(`.dot[data-row="${current.row}"][data-col="${current.col}"]`);
       cell.classList.remove("selected");
-      randomize && replaceWithRandomColor(cell, grid, current);
+      if (randomize) this.replaceWithRandomColor(cell, current);
       current = current.next;
     }
-
-    lastSelectedDot = null;
+    this.lastSelectedDot = null;
   }
 
-  function replaceWithRandomColor(cell, grid, current) {
-    const color = getRandomColor();
-
+  replaceWithRandomColor(cell, current) {
+    const color = this.getRandomColor();
     cell.dataset.color = color;
-    grid[current.row][current.col] = color;
+    this.grid[current.row][current.col] = color;
   }
 
-  function init() {
-    const turns = [0, 1];
-    turns.forEach((t) => document.querySelector(`#score${t + 1}`).classList.remove("turn"));
-
-    if (mode === modes.HUMAN) {
-      turn = turns[Math.floor(Math.random() * turns.length)];
-    } else {
-      turn = 0;
-    }
-
-    document.querySelector(`#score${turn + 1}`).classList.add("turn");
-
-    score = [0, 0];
-    scoreDisplayP1.textContent = 0;
-    scoreDisplayP2.textContent = 0;
-
-    gameWrapperElm.classList.add("started");
+  resetGame() {
+    this.resetUI();
+    this.generateGrid();
   }
+}
 
-  function reset() {
-    mode = null;
-    startButton.style.display = "none";
-    gameModeElm.style.display = "flex";
-    gameWrapperElm.classList.remove("started");
-  }
-  startButton.addEventListener("click", (event) => {
-    if (mode == null) {
-      event.target.style.display = "none";
-      gameModeElm.style.display = "flex";
-    }
-  });
-
-  btnHuman.addEventListener("click", () => {
-    mode = modes.HUMAN;
-    gameModeElm.style.display = "none";
-
-    document.getElementById("p1").innerText = "Player 1";
-    document.getElementById("p2").innerText = "Player 2";
-
-    init();
-    generateGrid();
-  });
-
-  btnAi.addEventListener("click", () => {
-    mode = modes.AI;
-    gameModeElm.style.display = "none";
-
-    document.getElementById("p1").innerText = "Your";
-    document.getElementById("p2").innerText = "AI";
-
-    init();
-    generateGrid();
-  });
-
-  gridElm.addEventListener("mousedown", (event) => {
-    if (Object.keys(event.target.dataset).length && ((mode === modes.AI && turn === 0) || mode === modes.HUMAN)) {
-      handleDotClick(event);
-    }
-  });
-
-  gridElm.addEventListener("mouseover", function (event) {
-    if (
-      event.buttons == 1 &&
-      Object.keys(event.target.dataset).length &&
-      ((mode === modes.AI && turn === 0) || mode === modes.HUMAN)
-    ) {
-      handleDotClick(event);
-    }
-  });
-
-  document.getElementById("reset").addEventListener("click", () => {
-    reset();
-  });
-});
+new DotGame();
