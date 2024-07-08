@@ -4,8 +4,8 @@ import { isSameColor, isValidDot, delay } from "./utils.js";
 import LinkedList from "./models/linked-list.js";
 import { modes, numCols, numRows } from "./consts.js";
 
-import "../persistence/firebase-config.js";
-import { initSession } from "../persistence/write.js";
+// import "../persistence/firebase-config.js";
+// import { initSession } from "../persistence/write.js";
 
 class DotGame {
   constructor() {
